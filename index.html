@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mugeci Extension Officer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { font-family: Arial, sans-serif; background: linear-gradient(135deg,#2e7d32,#81c784); color: #fff; margin:0; padding:0; }
+.container { max-width: 700px; margin: 20px auto; padding: 15px; }
+h1,h2 { text-align: center; }
+.card { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 12px; margin-top: 15px; }
+input, select, textarea, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border:none; font-size:16px; box-sizing: border-box; }
+button { background: #ffeb3b; color:#333; cursor:pointer; font-weight:bold; }
+.output { white-space: pre-wrap; line-height:1.6; margin-top:10px; background: rgba(255,255,255,0.1); padding:10px; border-radius:6px; }
+footer { text-align:center; margin-top:20px; opacity:0.8; font-size:14px; }
+@media screen and (max-width:480px){ body{font-size:16px;} input,select,textarea,button{font-size:14px;padding:10px;} }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>🌾 Mugeci Extension Officer</h1>
+<p style="text-align:center;">Step-by-step agriculture guidance for Kenyan farmers</p>
+
+<div class="card">
+<h2>Farm Input</h2>
+<label>Enter Your Location:</label>
+<input type="text" id="location" placeholder="Type your town or county">
+
+<label>Select Crop:</label>
+<select id="crop">
+    <option value="">--Select Crop--</option>
+    <!-- Cereals -->
+    <option value="maize">Maize</option>
+    <option value="wheat">Wheat</option>
+    <option value="rice">Rice</option>
+    <option value="sorghum">Sorghum</option>
+    <option value="millet">Millet</option>
+    <!-- Legumes -->
+    <option value="beans">Beans</option>
+    <option value="cowpeas">Cowpeas</option>
+    <option value="green grams">Green grams</option>
+    <option value="pigeon peas">Pigeon peas</option>
+    <!-- Vegetables -->
+    <option value="kale">Kale (Sukuma wiki)</option>
+    <option value="spinach">Spinach</option>
+    <option value="tomato">Tomato</option>
+    <option value="onion">Onion</option>
+    <option value="cabbage">Cabbage</option>
+    <option value="pepper">Pepper</option>
+    <!-- Fruits -->
+    <option value="mango">Mango</option>
+    <option value="avocado">Avocado</option>
+    <option value="banana">Banana</option>
+    <option value="passionfruit">Passionfruit</option>
+    <option value="pineapple">Pineapple</option>
+    <option value="orange">Orange</option>
+    <!-- Cash crops -->
+    <option value="tea">Tea</option>
+    <option value="coffee">Coffee</option>
+    <option value="sugarcane">Sugarcane</option>
+</select>
+
+<button onclick="showAdvisory()">Get Advisory</button>
+</div>
+
+<div class="card">
+<h2>🌱 Advisory Output</h2>
+<div id="advice" class="output">Your advisory will appear here...</div>
+</div>
+
+<div class="card">
+<h2>🤖 Ask a Farming Question</h2>
+<textarea id="question" rows="3" placeholder="Example: How do I control pests in maize?"></textarea>
+<button onclick="answerQuestion()">Ask</button>
+<div id="answer" class="output">Your answer will appear here...</div>
+</div>
+
+<footer>Mugeci Extension Officer | Kenya Agriculture Advisory</footer>
+</div>
+
+<script>
+// Crop advisories
+const crops = {
+    maize: {
+        land:"Plough 2-3 times to loosen soil, remove weeds. Level field for uniform water.",
+        nursery:"Optional. If used, keep seedlings 10-14 days before transplanting.",
+        seedbed:"Direct sow seeds 2.5cm deep in moist, firm soil.",
+        spacing:"25cm between seeds, 75cm between rows.",
+        fertilizer:"DAP at planting (400kg/ha). Top-dress with CAN 3-4 weeks after germination.",
+        pests:"Fall armyworm, stem borers. Monitor weekly and control with IPM or approved pesticides.",
+        diseases:"Leaf blight, Maize streak virus. Use resistant varieties, rotate crops.",
+        harvest:"Harvest 90-120 days after planting when leaves yellow and cobs mature."
+    },
+    wheat:{
+        land:"Plough and harrow. Prepare fine tilth.",
+        nursery:"Optional, seedlings 14-21 days.",
+        seedbed:"Firm, fine soil for uniform germination.",
+        spacing:"Rows 20cm apart, plants 5-10cm within rows.",
+        fertilizer:"NPK at planting, nitrogen top-dress after 3-4 weeks.",
+        pests:"Aphids, armyworms.",
+        diseases:"Rusts, smuts. Use resistant varieties.",
+        harvest:"120 days after planting. Grains golden brown."
+    },
+    rice:{
+        land:"Flood field, puddle soil.",
+        nursery:"Raise seedlings 20-25 days before transplanting.",
+        seedbed:"Soak seeds 24 hrs, keep beds moist.",
+        spacing:"20cm between rows, 15cm between plants.",
+        fertilizer:"Basal NPK, urea at tillering.",
+        pests:"Stem borer, leaf folder.",
+        diseases:"Blast, bacterial leaf blight.",
+        harvest:"90-120 days after transplanting when grains golden."
+    },
+    beans:{
+        land:"Plough, remove debris.",
+        nursery:"Not required, optional 10-14 days.",
+        seedbed:"Sow seeds 3-5cm deep.",
+        spacing:"10cm apart, 45cm between rows.",
+        fertilizer:"Phosphorus-rich if soil poor.",
+        pests:"Aphids, bean fly, leaf miners.",
+        diseases:"Rust, leaf spot.",
+        harvest:"60-90 days to maturity. Harvest pods when full."
+    },
+    kale:{
+        land:"Loosen soil, add compost, remove weeds.",
+        nursery:"4-6 weeks before transplanting.",
+        seedbed:"Fine soil, water regularly, protect seedlings.",
+        spacing:"30cm between plants, 45-50cm between rows.",
+        fertilizer:"Basal manure, nitrogen top-dress 3-4 weeks after transplanting.",
+        pests:"Cabbage aphids, caterpillars. Inspect weekly.",
+        diseases:"Black rot, powdery mildew. Use disease-free seedlings.",
+        harvest:"Harvest leaves selectively 6-8 weeks after transplanting."
+    },
+    tomato:{
+        land:"Loosen soil, add compost, remove weeds.",
+        nursery:"Seedlings 5-6 weeks in nursery.",
+        seedbed:"Fine soil, keep moist.",
+        spacing:"50-60cm between plants.",
+        fertilizer:"NPK and organic manure.",
+        pests:"Fruit borer, whiteflies.",
+        diseases:"Early blight.",
+        harvest:"Pick mature fruits after 90-110 days."
+    },
+    onion:{
+        land:"Well-tilled, loose soil.",
+        nursery:"Seedlings 6-8 weeks.",
+        seedbed:"Fine soil, well-drained.",
+        spacing:"10cm plants, 30cm rows.",
+        fertilizer:"Basal NPK, top-dress nitrogen.",
+        pests:"Thrips, mites.",
+        diseases:"Downy mildew.",
+        harvest:"Harvest bulbs when leaves yellow."
+    },
+    cabbage:{
+        land:"Loosen soil, compost.",
+        nursery:"Seedlings 4-6 weeks.",
+        seedbed:"Fine soil, water regularly.",
+        spacing:"50cm plants, 50cm rows.",
+        fertilizer:"Basal manure, nitrogen top-dress.",
+        pests:"Cabbage worms.",
+        diseases:"Black rot.",
+        harvest:"Harvest heads firm 8-10 weeks after transplant."
+    },
+    pepper:{
+        land:"Loosen soil, compost.",
+        nursery:"Seedlings 6-8 weeks.",
+        seedbed:"Fine soil, water regularly.",
+        spacing:"40-50cm plants, 50cm rows.",
+        fertilizer:"NPK and organic manure.",
+        pests:"Aphids, thrips.",
+        diseases:"Bacterial spot.",
+        harvest:"Harvest mature fruits 90-120 days after transplant."
+    },
+    mango:{
+        land:"Loosen soil, remove stones.",
+        nursery:"Grafted seedlings 8-12 months.",
+        seedbed:"Nursery beds.",
+        spacing:"10m between trees.",
+        fertilizer:"Manure and NPK periodically.",
+        pests:"Fruit fly.",
+        diseases:"Anthracnose.",
+        harvest:"Harvest mature fruits 3-5 years after planting."
+    },
+    avocado:{
+        land:"Well-drained soil, remove weeds.",
+        nursery:"Grafted seedlings 8-12 months.",
+        seedbed:"Nursery beds.",
+        spacing:"7-10m between trees.",
+        fertilizer:"Manure and NPK periodically.",
+        pests:"Persea mites.",
+        diseases:"Root rot.",
+        harvest:"3-4 years after planting."
+    },
+    banana:{
+        land:"Loosen soil, remove weeds.",
+        nursery:"Suckers/tissue culture.",
+        seedbed:"Plant suckers in pits.",
+        spacing:"3x3m.",
+        fertilizer:"Organic manure + NPK.",
+        pests:"Banana weevil.",
+        diseases:"Panama disease.",
+        harvest:"12-15 months after planting."
+    },
+    tea:{
+        land:"Terraced or sloped, remove weeds.",
+        nursery:"Seedlings in nursery 6-8 months.",
+        seedbed:"Fine soil mix.",
+        spacing:"1x1m.",
+        fertilizer:"Apply NPK and organic manure.",
+        pests:"Red spider mite.",
+        diseases:"Blister blight.",
+        harvest:"Pluck young leaves regularly after 3 years."
+    },
+    coffee:{
+        land:"Well-drained, remove weeds.",
+        nursery:"Seedlings 6-12 months.",
+        seedbed:"Fine soil, water regularly.",
+        spacing:"2.5x2.5m.",
+        fertilizer:"Organic manure + NPK.",
+        pests:"Coffee berry borer.",
+        diseases:"Coffee leaf rust.",
+        harvest:"3-4 years to first harvest."
+    },
+    sugarcane:{
+        land:"Deep plough, ridging.",
+        nursery:"Setts planting.",
+        seedbed:"Furrows for setts.",
+        spacing:"1.2x0.5m.",
+        fertilizer:"Basal NPK + nitrogen top-dress.",
+        pests:"Top shoot borer.",
+        diseases:"Ratoon stunting disease.",
+        harvest:"12-18 months after planting."
+    }
+};
+
+// FAQ responses
+const faqs = {
+    "pest":"Monitor crops weekly, remove pests manually or use IPM pesticides.",
+    "fertilizer":"Apply fertilizer according to crop stage and soil test recommendations.",
+    "nursery":"Maintain moisture, protect seedlings, thin weak ones.",
+    "spacing":"Follow recommended spacing for proper growth.",
+    "harvesting":"Harvest when crop is mature to get best quality and yield."
+};
+
+// Show advisory
+function showAdvisory(){
+    const loc = document.getElementById("location").value.trim();
+    const crop = document.getElementById("crop").value;
+    const div = document.getElementById("advice");
+
+    if(!loc || !crop){ 
+        div.textContent="Please enter location and select a crop."; 
+        return; 
+    }
+
+    const info = crops[crop];
+    if(!info){
+        div.textContent=`Location: ${loc}\nCrop: ${crop.toUpperCase()}\n\n⚠️ Advisory not available. Consult local extension officer.`;
+        return;
+    }
+
+    div.textContent=
+`Location: ${loc}
+Crop: ${crop.toUpperCase()}
+
+1️⃣ Land Preparation:
+${info.land}
+
+2️⃣ Nursery Duration:
+${info.nursery}
+
+3️⃣ Seedbed Preparation:
+${info.seedbed}
+
+4️⃣ Plant Spacing:
+${info.spacing}
+
+5️⃣ Fertilizer Application:
+${info.fertilizer}
+
+6️⃣ Pest Management:
+${info.pests}
+
+7️⃣ Disease Management:
+${info.diseases}
+
+8️⃣ Harvesting:
+${info.harvest}
+
+💡 Follow these steps carefully for best yield.`;
+}
+
+// Answer farming questions
+function answerQuestion(){
+    const q = document.getElementById("question").value.toLowerCase();
+    const div = document.getElementById("answer");
+    for(let key in faqs){
+        if(q.includes(key)){ 
+            div.textContent = faqs[key]; 
+            return; 
+        }
+    }
+    div.textContent="Sorry, Mugeci cannot answer this question. Consult your local extension officer.";
+}
+</script>
+</body>
+</html>
